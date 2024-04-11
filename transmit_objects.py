@@ -60,7 +60,7 @@ class Client:
                 self.socket = get_tcp_sock()
 
     def recv_obj(self, addr: tuple) -> None | object:
-        if check_address(addr):
+        if check_address():
             try:
                 self.socket.bind(self.bind_addr)
                 self.socket.listen()
