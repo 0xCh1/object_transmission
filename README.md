@@ -41,11 +41,9 @@ This module provides a simple client implementation for sending and receiving Py
 - **Returns:** 
   - `None`
 
-#### `Client.recv_obj(addr: tuple) -> None | object`
+#### `Client.recv_obj() -> None | object`
 
 - **Description:** Receives a Python object from the specified address.
-- **Parameters:**
-  - `addr (tuple)`: A tuple representing the source address (host, port).
 - **Returns:** 
   - `object | None`: Returns the received Python object, or `None` if an error occurred.
 
@@ -63,7 +61,7 @@ client = Client(bind_addr=('localhost', 5000))
 client.send_object(('localhost', 6000), {'key': 'value'})
 
 # Receive an object
-received_obj = client.recv_obj(('localhost', 6000))
+received_obj = client.recv_obj()
 print(received_obj)
 
 # Close the client connection
