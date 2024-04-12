@@ -52,7 +52,7 @@ class Client:
 
                 # Send obj
                 self.socket.sendall(pickle.dumps(obj) + b"EOF")
-                sleep(0.15)  # A small delay to address race conditions
+                sleep(0.2)  # A small delay to address race conditions
 
             finally:
                 # Reset socket
@@ -60,37 +60,36 @@ class Client:
                 self.socket = get_tcp_sock()
 
     def recv_obj(self) -> None | object:
-        if check_address():
-            try:
-                self.socket.bind(self.bind_addr)
-                self.socket.listen()
-                conn, _ = self.socket.accept()
+        try:
+            self.socket.bind(self.bind_addr)
+            self.socket.listen()
+            conn, _ = self.socket.accept()
 
-                # Receive size
-                obj_size = int.from_bytes(conn.recv(8), "big")
+            # Receive size
+            obj_size = int.from_bytes(conn.recv(8), "big")
 
-                # Receive object
-                received_obj = b""
-                while len(received_obj) < obj_size:
-                    chunk_size = min(obj_size - len(received_obj), 1024)
-                    chunk = conn.recv(chunk_size)
-                    if not chunk and received_obj.endswith(b"EOF"):
-                        break
-                    received_obj += chunk
+            # Receive object
+            received_obj = b""
+            while len(received_obj) < obj_size:
+                chunk_size = min(obj_size - len(received_obj), 1024)
+                chunk = conn.recv(chunk_size)
+                if not chunk and received_obj.endswith(b"EOF"):
+                    break
+                received_obj += chunk
 
-                if received_obj.endswith(b"EOF"):
-                    received_obj = received_obj[:-3]
+            if received_obj.endswith(b"EOF"):
+                received_obj = received_obj[:-3]
 
-                else:
-                    raise ObjectReceiveError()
+            else:
+                raise ObjectReceiveError()
 
-                conn.close()
-                return pickle.loads(received_obj)
+            conn.close()
+            return pickle.loads(received_obj)
 
-            finally:
-                # Reset the socket
-                self.socket.close()
-                self.socket = get_tcp_sock()
+        finally:
+            # Reset the socket
+            self.socket.close()
+            self.socket = get_tcp_sock()
 
     # Context managing protocol
     def __enter__(self):
